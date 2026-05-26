@@ -446,34 +446,72 @@ sl.background.fill.fore_color.rgb = C_WHITE
 add_header(sl, "Metodoloji: Analiz Boru Hattı")
 add_slide_number(sl, 7)
 
+# Sol sütun: 5 adımlı boru hattı (daraltıldı)
 steps = [
-    ("1  VERİ YÜKLEME",    "UNSW_NB15_training-set.csv  +  UNSW_NB15_testing-set.csv\n82,332 eğitim | 175,341 test | 42 özellik",   C_DARK_BLUE),
-    ("2  ÖN İŞLEME",       "Label Encoding (proto, service, state)  •  StandardScaler\nEksik değer → medyan ile doldurma",            C_MED_BLUE),
-    ("3  MODEL EĞİTİMİ",   "Random Forest: 100 ağaç, max_depth=20\nSınıf ağırlıklandırma: class_weight='balanced'",                  C_ACCENT_BLUE),
-    ("4  DEĞERLENDİRME",   "Accuracy, F1-Score, ROC-AUC\nConfusion Matrix  •  Feature Importance",                                    RGBColor(0x1A, 0x6D, 0x37)),
-    ("5  ETİK ANALİZ",     "FP/FN risk değerlendirmesi\nGDPR / Mahremiyet ve veri minimizasyonu incelemesi",                          RGBColor(0x7B, 0x1F, 0xA2)),
+    ("1  VERİ YÜKLEME",    "UNSW_NB15 training + testing CSV\n82,332 eğitim  |  175,341 test",           C_DARK_BLUE),
+    ("2  ÖN İŞLEME",       "Label Encoding  •  StandardScaler*\nEksik değer → medyan ile doldurma",      C_MED_BLUE),
+    ("3  MODEL EĞİTİMİ",   "Random Forest: 100 ağaç, max_depth=20\nclass_weight='balanced'",             C_ACCENT_BLUE),
+    ("4  DEĞERLENDİRME",   "Accuracy, F1, ROC-AUC\nConfusion Matrix  •  Feature Importance",             RGBColor(0x1A, 0x6D, 0x37)),
+    ("5  ETİK ANALİZ",     "FP/FN risk  •  GDPR / Mahremiyet",                                           RGBColor(0x7B, 0x1F, 0xA2)),
 ]
-step_h = 0.88
-step_w = SW - 1.0
-label_w = 2.8
+step_h  = 0.86
+step_w  = 5.6    # sol sütun toplam genişliği
+label_w = 2.3
 for i, (num, body, clr) in enumerate(steps):
     sy = HEADER_H + 0.1 + i * (step_h + 0.06)
-    add_rect(sl, 0.5, sy, label_w, step_h, clr)
+    add_rect(sl, 0.4, sy, label_w, step_h, clr)
     add_text_box(sl, num,
-                 0.55, sy + 0.12, label_w - 0.1, step_h - 0.24,
-                 font_size=13, bold=True, color=C_WHITE,
+                 0.45, sy + 0.1, label_w - 0.1, step_h - 0.2,
+                 font_size=12, bold=True, color=C_WHITE,
                  align=PP_ALIGN.LEFT, margin_inches=0)
-    add_rect(sl, 0.5 + label_w, sy, step_w - label_w, step_h, C_LIGHT_BLUE, clr, 1)
+    add_rect(sl, 0.4 + label_w, sy, step_w - label_w, step_h, C_LIGHT_BLUE, clr, 1)
     add_text_box(sl, body,
-                 0.5 + label_w + 0.15, sy + 0.1, step_w - label_w - 0.25, step_h - 0.2,
-                 font_size=12, color=C_DARK_TEXT,
+                 0.4 + label_w + 0.12, sy + 0.1, step_w - label_w - 0.22, step_h - 0.2,
+                 font_size=11, color=C_DARK_TEXT,
                  align=PP_ALIGN.LEFT, margin_inches=0)
-    if i < len(steps) - 1:
-        add_text_box(sl, "▼",
-                     0.5 + label_w * 0.5 - 0.15, sy + step_h,
-                     0.3, 0.1, font_size=9, color=clr,
-                     align=PP_ALIGN.CENTER, margin_inches=0)
-set_notes(sl, "Metodolojimiz beş adımdan oluşuyor. Veriyi yükledikten sonra kategorik değişkenleri sayısala çevirdik, standartlaştırdık ve eksik değerleri medyanla doldurduk. Model olarak Random Forest seçtik çünkü hem yüksek performanslı hem de yorumlanabilir bir modeldir. Son adımda salt teknik değerlendirmenin ötesine geçerek etik ve mahremiyet boyutunu analiz ettik.")
+
+# StandardScaler dipnotu
+add_text_box(sl, "* RF ağaç tabanlıdır; ölçeğe duyarsızdır. Scaler pipeline standardizasyonu için eklenmiştir.",
+             0.4, HEADER_H + 5 * (step_h + 0.06) + 0.15, step_w, 0.4,
+             font_size=9, italic=True, color=RGBColor(0x78, 0x80, 0x9A), margin_inches=0)
+
+# Sağ sütun: Neden Random Forest? paneli
+rx = 6.3
+ry = HEADER_H + 0.1
+rw = SW - rx - 0.4
+rh = SH - ry - 0.3
+
+add_rect(sl, rx, ry, rw, rh, RGBColor(0xE8, 0xEA, 0xF6), C_DARK_BLUE, 1)
+add_rect(sl, rx, ry, rw, 0.52, C_DARK_BLUE)
+add_text_box(sl, "Neden Random Forest?",
+             rx + 0.15, ry + 0.08, rw - 0.3, 0.38,
+             font_size=15, bold=True, color=C_WHITE,
+             align=PP_ALIGN.LEFT, margin_inches=0)
+
+rf_reasons = [
+    ("Aşırı öğrenmeye direnç",
+     "Yüzlerce ağacın ortalaması → tek ağaca göre çok daha kararlı"),
+    ("Dağılım varsayımı yok",
+     "Lojistik regresyon gibi normallik varsayımı gerekmez"),
+    ("Karma özellik desteği",
+     "Sayısal + kodlanmış kategorik özellikleri aynı anda işler"),
+    ("Yorumlanabilirlik",
+     "Feature importance → her özelliğin katkısı ölçülebilir"),
+    ("Ölçek bağımsızlığı",
+     "Bölünmeler sıralamaya dayalı; StandardScaler modelin zorunluluğu değildir"),
+]
+item_h = (rh - 0.65) / len(rf_reasons)
+for j, (rtitle, rbody) in enumerate(rf_reasons):
+    iy = ry + 0.62 + j * item_h
+    add_rect(sl, rx + 0.12, iy, 0.06, item_h * 0.75, C_ACCENT_BLUE)
+    add_text_box(sl, rtitle,
+                 rx + 0.25, iy, rw - 0.4, 0.28,
+                 font_size=12, bold=True, color=C_DARK_BLUE, margin_inches=0)
+    add_text_box(sl, rbody,
+                 rx + 0.25, iy + 0.28, rw - 0.4, item_h - 0.32,
+                 font_size=11, color=C_DARK_TEXT, margin_inches=0)
+
+set_notes(sl, "Metodolojimiz beş adımdan oluşuyor. Model olarak Random Forest seçtik çünkü hem yüksek performanslı hem de yorumlanabilirdir. StandardScaler'ı RF için değil, pipeline standardizasyonu amacıyla ekledik — bu önemli bir teknik ayrımdır. Son adımda salt teknik değerlendirmenin ötesine geçerek etik ve mahremiyet boyutunu analiz ettik.")
 
 # ── SLAYT 8: PERFORMANS METRİKLERİ ─────────────────────────
 print("Slayt 8: Performans Metrikleri")
@@ -688,23 +726,43 @@ prec_bullets = [
 ]
 add_bullet_box(sl, prec_bullets, 8.68, HEADER_H + 1.1, 4.1, 2.2, font_size=12, color=C_ORANGE)
 
-# Alttaki açıklama kutuları
-add_rect(sl, 0.4, HEADER_H + 3.55, (SW - 1.0) / 2 - 0.1, 2.7, C_LIGHT_BLUE, C_ACCENT_BLUE, 1)
+# Alttaki açıklama kutuları (kısaltıldı: 2.7 → 1.85)
+BOX_H = 1.85
+add_rect(sl, 0.4, HEADER_H + 3.55, (SW - 1.0) / 2 - 0.1, BOX_H, C_LIGHT_BLUE, C_ACCENT_BLUE, 1)
 add_text_box(sl, "Teknik Boyut",
-             0.55, HEADER_H + 3.6, (SW - 1.2) / 2 - 0.1, 0.38,
+             0.55, HEADER_H + 3.6, (SW - 1.2) / 2 - 0.1, 0.35,
              font_size=13, bold=True, color=C_ACCENT_BLUE, margin_inches=0)
-add_text_box(sl, "Eşik değeri (threshold) ayarlanarak precision-recall dengesi değiştirilebilir. Yüksek güvenlik ortamlarında recall önceliklendirilmeli; kullanıcı gizliliğinin ön planda olduğu ortamlarda ise precision artırılmalıdır.",
-             0.55, HEADER_H + 4.02, (SW - 1.2) / 2 - 0.1, 2.1,
+add_text_box(sl, "Eşik değeri (threshold) ayarlanarak precision-recall dengesi değiştirilebilir. Yüksek güvenlik ortamlarında recall önceliklendirilmeli; mahremiyet öncelikli ortamlarda ise precision artırılmalıdır.",
+             0.55, HEADER_H + 3.97, (SW - 1.2) / 2 - 0.1, 1.35,
              font_size=12, color=C_DARK_TEXT, margin_inches=0)
 
-add_rect(sl, 0.5 + (SW - 1.0) / 2, HEADER_H + 3.55, (SW - 1.0) / 2 - 0.1, 2.7, C_PURPLE_LIGHT, C_PURPLE, 1)
+add_rect(sl, 0.5 + (SW - 1.0) / 2, HEADER_H + 3.55, (SW - 1.0) / 2 - 0.1, BOX_H, C_PURPLE_LIGHT, C_PURPLE, 1)
 add_text_box(sl, "Etik Boyut",
-             0.65 + (SW - 1.0) / 2, HEADER_H + 3.6, (SW - 1.2) / 2 - 0.1, 0.38,
+             0.65 + (SW - 1.0) / 2, HEADER_H + 3.6, (SW - 1.2) / 2 - 0.1, 0.35,
              font_size=13, bold=True, color=C_PURPLE, margin_inches=0)
-add_text_box(sl, "Otomatik karar sistemleri şeffaflık, hesap verebilirlik ve açıklanabilirlik (XAI) gerektirir. Her yanlış sınıflandırma, somut bir insanı etkiler; bu nedenle model kararları açıklanabilir olmalıdır.",
-             0.65 + (SW - 1.0) / 2, HEADER_H + 4.02, (SW - 1.2) / 2 - 0.1, 2.1,
+add_text_box(sl, "Otomatik karar sistemleri şeffaflık, hesap verebilirlik ve açıklanabilirlik (XAI) gerektirir. Her yanlış sınıflandırma somut bir insanı etkiler; model kararları açıklanabilir olmalıdır.",
+             0.65 + (SW - 1.0) / 2, HEADER_H + 3.97, (SW - 1.2) / 2 - 0.1, 1.35,
              font_size=12, color=C_DARK_TEXT, margin_inches=0)
-set_notes(sl, "Burada temel bir etik ikilemle karşı karşıyayız. Recall'u artırmak — yani daha az saldırı kaçırmak — kaçınılmaz olarak daha fazla yanlış alarmı beraberinde getirir ve masum kullanıcıları etkiler. Tersine precision'ı artırmak daha az yanlış alarm anlamına gelir ama bazı gerçek saldırılar atlanır. Bu denge, sistemin kullanıldığı bağlama ve risk iştahına göre belirlenmelidir.")
+
+# ── TEMEL ÇIKARIM: Threshold callout kutusu ──────────────────
+callout_y = HEADER_H + 3.55 + BOX_H + 0.12
+callout_h = 0.88
+add_rect(sl, 0.4, callout_y, SW - 0.8, callout_h,
+         RGBColor(0xFF, 0xF9, 0xC4), RGBColor(0xF5, 0x7F, 0x17), 2)
+add_text_box(sl, "TEMEL ÇIKARIM",
+             0.58, callout_y + 0.07, 2.1, 0.36,
+             font_size=12, bold=True,
+             color=RGBColor(0xE6, 0x5C, 0x00), margin_inches=0)
+add_text_box(sl,
+    "Eşik değeri (varsayılan 0.5) sabit tutulmamalıdır. "
+    "Güvenlik ortamlarında eşik düşürülür → daha az kaçan saldırı. "
+    "Mahremiyet öncelikli ortamlarda eşik yükseltilir → daha az yanlış pozitif. "
+    "Bu tercih bağlama özel, bilinçli ve etik olarak gerekçelendirilmiş olmalıdır.",
+    2.75, callout_y + 0.06, SW - 3.2, callout_h - 0.12,
+    font_size=11, italic=True,
+    color=RGBColor(0x1A, 0x23, 0x7E), margin_inches=0)
+
+set_notes(sl, "Burada temel bir etik ikilemle karşı karşıyayız. Recall'u artırmak — yani daha az saldırı kaçırmak — kaçınılmaz olarak daha fazla yanlış alarmı beraberinde getirir. Tersine precision'ı artırmak daha az yanlış alarm anlamına gelir ama bazı gerçek saldırılar atlanır. Slayttaki sarı kutudaki cümle bu projenin en olgun bulgusudur: eşik değeri kararı teknik değil, etik bir karardır.")
 
 # ── SLAYT 14: SONUÇ ─────────────────────────────────────────
 print("Slayt 14: Sonuç ve Öneriler")
