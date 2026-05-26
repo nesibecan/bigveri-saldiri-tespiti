@@ -1,0 +1,17 @@
+# Claude Code ayarları
+.claude/
+
+# Büyük veri dosyaları - GitHub'a yükleme
+data/
+*.zip
+*.csv
+
+# Python önbellek
+__pycache__/
+*.pyc
+*.pyo
+.ipynb_checkpoints/
+
+# Geçici dosyalar
+*.log
+results.json
