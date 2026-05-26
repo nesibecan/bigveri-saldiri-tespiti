@@ -77,6 +77,14 @@ Preprocessing
   • Median imputation for missing values
      │
      ▼
+Model Selection — Why Random Forest?
+  • Robust to overfitting via ensemble averaging
+  • No assumption of feature distribution (unlike logistic regression)
+  • Natively handles mixed feature types (numeric + encoded categorical)
+  • Produces interpretable feature importance scores
+  • Tree-based structure makes scaling unnecessary — StandardScaler
+    is applied here for pipeline consistency, not model requirement
+
 Model Training
   • Random Forest: 100 trees, max_depth=20
   • Class weighting (balanced) for imbalance
@@ -157,7 +165,9 @@ python run_analysis.py
 
 > *"Big data security systems should be designed not only for technical accuracy, but also in alignment with ethical, fairness, and privacy principles."*
 
-The precision–recall trade-off is not merely a modeling decision — it carries real consequences for both security and human rights. Tuning the decision threshold should be informed by the deployment context and the acceptable risk balance.
+The precision–recall trade-off is not merely a modeling decision — it carries real consequences for both security and human rights.
+
+> **Design principle:** The decision threshold (default 0.5) should not be treated as fixed. In high-security environments, lowering the threshold raises recall (fewer missed attacks) at the cost of more false alarms. In privacy-sensitive contexts, raising the threshold reduces false positives but increases missed detections. This tuning must be an explicit, context-aware, and ethically justified choice — not a silent default.
 
 ---
 
